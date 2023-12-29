@@ -1,3 +1,7 @@
+/**
+这里导入了一系列的模块，包括命令行处理、配置、
+状态、全局状态、跳转、模式、寄存器、状态栏、任务队列、日志记录等。这些模块为扩展提供了核心功能的实现。
+ */
 import * as vscode from 'vscode';
 
 import { ExCommandLine, SearchCommandLine } from './src/cmd_line/commandLine';
@@ -18,19 +22,31 @@ import { SpecialKeys } from './src/util/specialKeys';
 import { VSCodeContext } from './src/util/vscodeContext';
 import { exCommandParser } from './src/vimscript/exCommandParser';
 
+/**
+定义了几个全局变量，用于存储 VSCode 扩展上下文、先前活动编辑器的 URI 以及最后关闭的模式处理器
+ */
 let extensionContext: vscode.ExtensionContext;
 let previousActiveEditorUri: vscode.Uri | undefined;
 let lastClosedModeHandler: ModeHandler | null = null;
 
+/**
+接口，定义了在键绑定中使用的结构，包括 after 和 commands 字段，用于处理键后续和执行的命令。
+ */
 interface ICodeKeybinding {
   after?: string[];
   commands?: Array<{ command: string; args: any[] }>;
 }
 
+/**
+用于获取并更新当前的 ModeHandler，以处理活动文本编辑器的光标移动、同步和视图更新。
+ */
 export async function getAndUpdateModeHandler(
   forceSyncAndUpdate = false,
 ): Promise<ModeHandler | undefined> {
   const activeTextEditor = vscode.window.activeTextEditor;
+
+  console.log('ruo-vim-test-extensionBase-getAndUpdateModeHandler==>',activeTextEditor)
+
   if (activeTextEditor === undefined || activeTextEditor.document.isClosed) {
     return undefined;
   }
@@ -68,8 +84,10 @@ export async function getAndUpdateModeHandler(
   return curHandler;
 }
 
+
 /**
  * Loads and validates the user's configuration
+ * 函数用于加载和验证用户的配置设置，包括日志记录任何与配置相关的错误或警告。
  */
 async function loadConfiguration() {
   const validatorResults = await configuration.load();
@@ -92,12 +110,15 @@ async function loadConfiguration() {
 
 /**
  * The extension's entry point
+ * 这是扩展的主要入口点，
+ * 包括初始化、配置加载、事件注册、命令注册、状态加载和设置、模式处理器的初始化、禁用自动键盘导航等。
  */
 export async function activate(context: vscode.ExtensionContext, handleLocal: boolean = true) {
   ExCommandLine.parser = exCommandParser;
 
   Logger.init();
 
+  console.log('ruo-vim-test===>extensionBase-->activate',)
   // before we do anything else, we need to load the configuration
   await loadConfiguration();
 
@@ -541,6 +562,11 @@ export async function activate(context: vscode.ExtensionContext, handleLocal: bo
 
   Logger.debug('Finish.');
 }
+
+/**
+overrideCommand、registerCommand 和 registerEventListener 等辅助函数，用于注册命令和事件监听器。
+forceStopRecursiveRemap 函数用于强制停止递归重映射。
+ */
 
 /**
  * Toggles the VSCodeVim extension between Enabled mode and Disabled mode. This
